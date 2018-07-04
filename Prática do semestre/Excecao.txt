@@ -1,0 +1,8 @@
+
+public class IntervaloInvalido extends Exception{
+    
+    public IntervaloInvalido(){
+        super("Valor digitado fora do interfavlo (1-6)");
+    }
+    
+}

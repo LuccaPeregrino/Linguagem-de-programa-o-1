@@ -1,0 +1,191 @@
+
+import javax.swing.*;
+import java.util.*;
+
+public class Aplicacao {
+
+    private static Aluno[] conj = new Aluno[50];
+    private static int qtde = 0;
+
+    public static void main(String[] args) throws IntervaloInvalido {
+        int op = 0;
+        boolean errado;
+
+        while (true) {
+            errado = true;
+
+            while (errado) {
+                try {
+                    op = Integer.parseInt(JOptionPane.showInputDialog("1 - Cadastre aluno graduação\n"
+                            + "2 - Cadastre aluno pos-graduação\n"
+                            + "3 - Cadastrar disciplina\n"
+                            + "4 - Trancar periodo\n"
+                            + "5 - Calcular CRE\n"
+                            + "6 - Sair"));
+                    if (op < 1 || op > 6) {
+                        throw new IntervaloInvalido();
+                    }
+                    errado = false;
+
+                } catch (IntervaloInvalido a) {
+                    JOptionPane.showMessageDialog(null, "Valor digitado esta fora do intervalo");
+                } catch (NumberFormatException a) {
+                    JOptionPane.showMessageDialog(null, "Valor digitado não é numérico");
+                }
+            }
+
+            switch (op) {
+                case 1:
+                    cadastraAlunoGrad();
+                    break;
+                case 2:
+                    cadastraAlunoPos();
+                    break;
+                case 3:
+                    cadastraDisciplina();
+                    break;
+                case 4:
+                    trancaPeriodo();
+                    break;
+                case 5:
+                    calcCRE();
+                    break;
+            }
+
+            if (op == 6) {
+                break;
+            }
+        }
+    }
+
+    public static void cadastraAlunoGrad() {
+        boolean errado = true;
+
+        if (qtde < conj.length) {
+            Calendar d = Calendar.getInstance();
+
+            while (errado) {
+                try {
+                    d.set(Integer.parseInt(JOptionPane.showInputDialog("Digite o ano de nascimento: ")),
+                            Integer.parseInt(JOptionPane.showInputDialog("Digite o mes de nascimento: ")) - 1,
+                            Integer.parseInt(JOptionPane.showInputDialog("Digite o dia de nascimento: ")));
+
+                    conj[qtde] = new AlunoGrad(
+                            Integer.parseInt(JOptionPane.showInputDialog("Digite a matricula: ")),
+                            JOptionPane.showInputDialog("Digite o nome do aluno:"), d,
+                            JOptionPane.showInputDialog("Digite o periodo de ingresso: "));
+                    qtde++;
+                    errado = false;
+
+                } catch (NumberFormatException a) {
+                    JOptionPane.showMessageDialog(null, "Valor digitado não é numérico");
+                }
+            }
+
+        } else {
+            JOptionPane.showMessageDialog(null, "Não é possivél cadastrar mais alunos", "Erro", JOptionPane.ERROR_MESSAGE);
+        }
+
+    }
+
+    public static void cadastraAlunoPos() {
+        boolean errado = true;
+
+        if (qtde < conj.length) {
+            Calendar d = Calendar.getInstance();
+
+            while (errado) {
+                try {
+                    d.set(Integer.parseInt(JOptionPane.showInputDialog("Digite o ano de nascimento: ")),
+                            Integer.parseInt(JOptionPane.showInputDialog("Digite o mes de nascimento: ")) - 1,
+                            Integer.parseInt(JOptionPane.showInputDialog("Digite o dia de nascimento: ")));
+
+                    conj[qtde] = new AlunoPos(
+                            Integer.parseInt(JOptionPane.showInputDialog("Digite a matricula: ")),
+                            JOptionPane.showInputDialog("Digite o nome do aluno:"), d,
+                            JOptionPane.showInputDialog("Digite a area de pesquisa: "),
+                            JOptionPane.showInputDialog("Digite o professor orientador: "));
+                    qtde++;
+                    errado = false;
+                } catch (NumberFormatException a) {
+                    JOptionPane.showMessageDialog(null, "Valor digitado não é numérico");
+                }
+            }
+
+        } else {
+            JOptionPane.showMessageDialog(null, "Não é possivél cadastrar mais alunos", "Erro", JOptionPane.ERROR_MESSAGE);
+        }
+
+    }
+
+    public static void cadastraDisciplina() {
+        boolean errado = true;
+
+        while (errado) {
+            try {
+                int mat = Integer.parseInt(JOptionPane.showInputDialog("Digite a matricula do aluno:"));
+                int i;
+
+                for (i = 0; i < qtde; i++) {
+                    if (mat == conj[i].getMatricula()) {
+
+                        if (conj[i].setDisciplinasCursada(new Disciplina(Integer.parseInt(JOptionPane.showInputDialog("Codigo da disciplina: ")),
+                                JOptionPane.showInputDialog("Nome da disciplina: "), JOptionPane.showInputDialog("Periodo cursado: "),
+                                Integer.parseInt(JOptionPane.showInputDialog("Carga horaria da disciplina: ")),
+                                Double.parseDouble(JOptionPane.showInputDialog("Nota do aluno na disciplina: "))))) {
+                            JOptionPane.showMessageDialog(null, "Disciplina cadastrada com sucesso", "Saida", JOptionPane.INFORMATION_MESSAGE);
+                            break;
+                        } else {
+                            JOptionPane.showMessageDialog(null, "Não foi possível cadastrar disciplina", "Erro", JOptionPane.ERROR_MESSAGE);
+                        }
+                    }
+                }
+
+                if (i == (qtde + 1)) {
+                    JOptionPane.showMessageDialog(null, "Aluno não foi encontrado", "Erro", JOptionPane.ERROR_MESSAGE);
+                }
+                errado = false;
+            } catch (NumberFormatException a) {
+                JOptionPane.showMessageDialog(null, "Valor digitado não é numérico");
+            }
+        }
+
+    }
+
+    public static void trancaPeriodo() {
+        int mat = Integer.parseInt(JOptionPane.showInputDialog("Digite a matricula do aluno que deseja calcular CRE:"));
+        int i;
+
+        for (i = 0; i < qtde; i++) {
+            if (mat == conj[i].getMatricula()) {
+                if (conj[i] instanceof AlunoGrad) {
+                    AlunoGrad temp = (AlunoGrad) conj[i];
+                    temp.setPeriodosTrancados();
+                    break;
+                } else {
+                    JOptionPane.showMessageDialog(null, "Aluno de pós-graduação não pode trancar período", "Erro", JOptionPane.ERROR_MESSAGE);
+                    break;
+                }
+            }
+        }
+
+        if (i == (qtde + 1)) {
+            JOptionPane.showMessageDialog(null, "Aluno não foi encontrado", "Erro", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    public static void calcCRE() {
+        int mat = Integer.parseInt(JOptionPane.showInputDialog("Digite a matricula do aluno que deseja trancar:"));
+        int i;
+
+        for (i = 0; i < qtde; i++) {
+            if (mat == conj[i].getMatricula()) {
+                JOptionPane.showMessageDialog(null, "O CRE do aluno foi " + conj[i].calcCRE(), "CRE", JOptionPane.INFORMATION_MESSAGE);
+            }
+        }
+
+        if (i == (qtde + 1)) {
+            JOptionPane.showMessageDialog(null, "Aluno não foi encontrado", "Erro", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+}
